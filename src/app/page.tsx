@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Printer,
   Camera,
@@ -28,9 +28,6 @@ import {
   ChevronDown,
   CheckCircle2,
   ArrowDown,
-  Monitor,
-  FileOutput,
-  Wifi,
 } from "lucide-react";
 
 const WHATSAPP_LINK =
@@ -42,7 +39,6 @@ const serviceCategories = [
     title: "પ્રિન્ટિંગ અને ઝેરોક્સ",
     emoji: "🖨️",
     color: "from-orange-500 to-orange-600",
-    bgColor: "bg-orange-50",
     borderColor: "border-orange-200",
     items: [
       "બ્લેક & વ્હાઈટ ઝેરોક્સ",
@@ -58,7 +54,6 @@ const serviceCategories = [
     title: "સ્કેનિંગ અને ડોક્યુમેન્ટ સેવા",
     emoji: "📄",
     color: "from-blue-500 to-blue-600",
-    bgColor: "bg-blue-50",
     borderColor: "border-blue-200",
     items: [
       "ડોક્યુમેન્ટ સ્કેનિંગ",
@@ -72,7 +67,6 @@ const serviceCategories = [
     title: "લેમિનેશન અને બાઈન્ડિંગ",
     emoji: "📚",
     color: "from-orange-600 to-red-500",
-    bgColor: "bg-red-50",
     borderColor: "border-red-200",
     items: [
       "લેમિનેશન",
@@ -86,7 +80,6 @@ const serviceCategories = [
     title: "ઓનલાઈન અને સરકારની સેવાઓ",
     emoji: "🌐",
     color: "from-blue-600 to-indigo-500",
-    bgColor: "bg-indigo-50",
     borderColor: "border-indigo-200",
     items: [
       "આધાર કાર્ડ પ્રિન્ટ / અપડેટ",
@@ -107,7 +100,6 @@ const serviceCategories = [
     title: "RTO (વાહન સંબંધિત સેવાઓ)",
     emoji: "🚗",
     color: "from-amber-500 to-orange-500",
-    bgColor: "bg-amber-50",
     borderColor: "border-amber-200",
     items: [
       "ડ્રાઇવિંગ લાઈસન્સ (Learning / Permanent)",
@@ -124,7 +116,6 @@ const serviceCategories = [
     title: "ટિકિટ બુકિંગ",
     emoji: "🎫",
     color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-cyan-50",
     borderColor: "border-cyan-200",
     items: ["રેલવે ટિકિટ", "બસ ટિકિટ", "ફ્લાઈટ ટિકિટ"],
   },
@@ -133,7 +124,6 @@ const serviceCategories = [
     title: "બિલ પેમેન્ટ અને રિચાર્જ",
     emoji: "💸",
     color: "from-green-500 to-emerald-500",
-    bgColor: "bg-green-50",
     borderColor: "border-green-200",
     items: [
       "લાઈટ બિલ પેમેન્ટ",
@@ -149,7 +139,6 @@ const serviceCategories = [
     title: "ટાઈપિંગ અને ઓફિસ વર્ક",
     emoji: "🧾",
     color: "from-purple-500 to-violet-500",
-    bgColor: "bg-purple-50",
     borderColor: "border-purple-200",
     items: [
       "રિઝ્યૂમે બનાવવું",
@@ -163,7 +152,6 @@ const serviceCategories = [
     title: "ફોટો અને ID સેવાઓ",
     emoji: "🪪",
     color: "from-pink-500 to-rose-500",
-    bgColor: "bg-pink-50",
     borderColor: "border-pink-200",
     items: [
       "પાસપોર્ટ સાઈઝ ફોટો",
@@ -176,7 +164,6 @@ const serviceCategories = [
     title: "અન્ય સામાન્ય સેવાઓ",
     emoji: "🛠️",
     color: "from-teal-500 to-cyan-500",
-    bgColor: "bg-teal-50",
     borderColor: "border-teal-200",
     items: [
       "વોટ્સએપ / ઇમેઇલમાંથી પ્રિન્ટ",
@@ -236,33 +223,25 @@ const navLinks = [
   { label: "સંપર્ક", href: "#contact" },
 ];
 
-// Hook for scroll-triggered animations on individual elements
 function useScrollAnimation() {
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-          }
+          if (entry.isIntersecting) entry.target.classList.add("is-visible");
         });
       },
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
-
     const children = el.querySelectorAll(
       ".scroll-animate, .scroll-animate-up, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale"
     );
     children.forEach((child) => observer.observe(child));
-
     return () => observer.disconnect();
   }, []);
-
   return ref;
 }
 
@@ -272,8 +251,6 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
   const [heroLoaded, setHeroLoaded] = useState(false);
-
-  // Parallax scroll position
   const [scrollY, setScrollY] = useState(0);
 
   const servicesRef = useScrollAnimation();
@@ -282,7 +259,6 @@ export default function Home() {
   const contactRef = useScrollAnimation();
 
   useEffect(() => {
-    // Trigger hero animations after mount
     const timer = setTimeout(() => setHeroLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -298,17 +274,10 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const toggleCategory = (index: number) => {
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const toggleCategory = (index: number) =>
     setExpandedCategory(expandedCategory === index ? null : index);
-  };
 
-  // Parallax offset for hero image
-  const parallaxOffset = scrollY * 0.4;
-  // Opacity for hero overlay text as you scroll
   const heroTextOpacity = Math.max(0, 1 - scrollY / 600);
 
   return (
@@ -322,11 +291,7 @@ export default function Home() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className={`flex items-center justify-between transition-all duration-300 ${
-              scrolled ? "h-16 sm:h-20" : "h-16 sm:h-20"
-            }`}
-          >
+          <div className="flex items-center justify-between h-16 sm:h-20">
             <a
               href="#home"
               className={`flex items-center gap-2 sm:gap-3 transition-colors duration-300 ${
@@ -429,161 +394,96 @@ export default function Home() {
       </nav>
 
       {/* ========== HERO SECTION ========== */}
-      <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Background Image with Parallax */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{ transform: `translateY(${parallaxOffset}px)` }}
-        >
-          <img
-            src="/hero-banner.jpg"
-            alt="માધવ ઓનલાઇન સેન્ટર"
-            className="w-full h-[120%] object-cover"
-          />
-        </div>
-
-        {/* Dark Overlay with gradient */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-transparent to-black/30" />
-
-        {/* Animated decorative elements */}
-        <div className="absolute inset-0 z-[2] overflow-hidden">
+      <section
+        id="home"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+      >
+        {/* Animated background decorative orbs */}
+        <div className="absolute inset-0 overflow-hidden">
           <div
-            className="absolute top-20 right-10 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-float"
+            className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-orange-500/8 rounded-full blur-[100px] animate-float"
             style={{ animationDelay: "0s" }}
           />
           <div
-            className="absolute bottom-20 left-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-float"
+            className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/8 rounded-full blur-[100px] animate-float"
             style={{ animationDelay: "1.5s" }}
           />
           <div
-            className="absolute top-1/2 left-1/3 w-32 h-32 bg-orange-400/5 rounded-full blur-2xl animate-float"
+            className="absolute top-[40%] left-[50%] w-[300px] h-[300px] bg-orange-400/5 rounded-full blur-[80px] animate-float"
             style={{ animationDelay: "0.8s" }}
+          />
+          <div
+            className="absolute top-[20%] left-[20%] w-[200px] h-[200px] bg-blue-400/5 rounded-full blur-[60px] animate-float"
+            style={{ animationDelay: "2s" }}
           />
         </div>
 
+        {/* Subtle dot grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, white 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+
         {/* Hero Content */}
         <div
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-32 sm:py-40"
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-28 sm:py-36"
           style={{ opacity: heroTextOpacity }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            {/* Left: Text Content */}
-            <div className="space-y-6 sm:space-y-8">
-              {/* Badge */}
-              <div
-                className={`inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-400/30 rounded-full text-orange-300 text-sm font-semibold backdrop-blur-sm transition-all duration-700 ${
-                  heroLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 -translate-y-4"
-                }`}
-              >
-                <Wifi className="w-4 h-4" />
-                ડુંગરનું વિશ્વસનીય ઓનલાઈન સેન્ટર
-              </div>
-
-              {/* Main Title */}
-              <div
-                className={`transition-all duration-700 delay-150 ${
-                  heroLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-              >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight">
-                  <span className="gradient-text">માધવ</span>
-                  <br />
-                  <span className="gradient-text-blue">ઓનલાઇન સેન્ટર</span>
-                </h1>
-              </div>
-
-              {/* Subtitle */}
-              <div
-                className={`transition-all duration-700 delay-300 ${
-                  heroLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-              >
-                <p className="text-lg sm:text-xl text-orange-300 font-semibold">
-                  માં આપનું સ્વાગત છે
-                </p>
-                <p className="text-base sm:text-lg text-gray-300 mt-2 leading-relaxed max-w-xl">
-                  તમારા તમામ પ્રિન્ટિંગ, ઝેરોક્સ અને ઓનલાઈન સેવાઓ માટે એક
-                  વિશ્વસનીય સ્થળ — ઝડપી, સસ્તી અને ગુણવત્તાવાળી સેવા
-                </p>
-              </div>
-
-              {/* CTA Buttons */}
-              <div
-                className={`flex flex-col sm:flex-row gap-3 sm:gap-4 transition-all duration-700 delay-[450ms] ${
-                  heroLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-              >
-                <a
-                  href={WHATSAPP_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-green-500 text-white rounded-xl text-base font-bold hover:bg-green-600 transition-all duration-200 shadow-lg hover:shadow-green-500/30 hover:shadow-xl hover:scale-105 active:scale-95"
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  WhatsApp પર સંપર્ક કરો
-                </a>
-                <a
-                  href="#services"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl text-base font-bold hover:bg-white/20 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  અમારી સેવાઓ જુઓ
-                  <ArrowDown className="w-4 h-4" />
-                </a>
-              </div>
-
-              {/* Stats */}
-              <div
-                className={`flex flex-wrap gap-6 sm:gap-10 pt-4 transition-all duration-700 delay-[600ms] ${
-                  heroLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-              >
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 text-orange-400">
-                    <Users className="w-5 h-5" />
-                    <span className="text-2xl sm:text-3xl font-bold">1000+</span>
-                  </div>
-                  <span className="text-sm text-gray-400 mt-1">
-                    સંતુષ્ટ ગ્રાહકો
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 text-blue-400">
-                    <Zap className="w-5 h-5" />
-                    <span className="text-2xl sm:text-3xl font-bold">50+</span>
-                  </div>
-                  <span className="text-sm text-gray-400 mt-1">
-                    સેવાઓ ઉપલબ્ધ
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 text-green-400">
-                    <Star className="w-5 h-5" />
-                    <span className="text-2xl sm:text-3xl font-bold">5+</span>
-                  </div>
-                  <span className="text-sm text-gray-400 mt-1">
-                    વર્ષનો અનુભવ
-                  </span>
+          <div className="flex flex-col items-center text-center">
+            {/* Floating Logo */}
+            <div
+              className={`transition-all duration-700 ${
+                heroLoaded ? "opacity-100 scale-100" : "opacity-0 scale-75"
+              }`}
+            >
+              <div className="animate-float mb-8 sm:mb-10">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-blue-400 rounded-full blur-xl opacity-40 scale-125" />
+                  <img
+                    src="/madhav-logo.png"
+                    alt="માધવ ઓનલાઇન સેન્ટર"
+                    className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full object-cover shadow-2xl border-4 border-white/20"
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Right: Quick Service Cards */}
+            {/* Continuously Floating Title */}
             <div
-              className={`hidden lg:grid grid-cols-2 gap-4 transition-all duration-1000 delay-500 ${
-                heroLoaded
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-12"
+              className={`transition-all duration-700 delay-150 ${
+                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              <h1 className="hero-float-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-none tracking-tight">
+                <span className="gradient-text">માધવ</span>
+                <br />
+                <span className="gradient-text-blue">ઓનલાઇન સેન્ટર</span>
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <div
+              className={`mt-6 sm:mt-8 transition-all duration-700 delay-300 ${
+                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              <p className="text-xl sm:text-2xl md:text-3xl text-orange-400 font-bold">
+                માં આપનું સ્વાગત છે
+              </p>
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 mt-3 leading-relaxed max-w-2xl mx-auto">
+                તમારા તમામ પ્રિન્ટિંગ, ઝેરોક્સ અને ઓનલાઈન સેવાઓ માટે એક
+                વિશ્વસનીય સ્થળ — ઝડપી, સસ્તી અને ગુણવત્તાવાળી સેવા
+              </p>
+            </div>
+
+            {/* Quick Service Tags */}
+            <div
+              className={`flex flex-wrap justify-center gap-3 mt-8 sm:mt-10 transition-all duration-700 delay-[400ms] ${
+                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
               {heroQuickServices.map((svc, i) => {
@@ -591,37 +491,71 @@ export default function Home() {
                 return (
                   <div
                     key={i}
-                    className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 group hover:scale-105 hover:shadow-xl hover:shadow-orange-500/10"
-                    style={{ animationDelay: `${i * 150}ms` }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full text-gray-300 text-sm font-medium hover:bg-white/10 hover:border-orange-400/30 transition-all duration-300"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-white font-bold text-base">
-                      {svc.label}
-                    </h3>
-                    <p className="text-gray-400 text-xs mt-1">
-                      ક્લિક કરો અને સેવા મેળવો
-                    </p>
+                    <Icon className="w-4 h-4 text-orange-400" />
+                    {svc.label}
                   </div>
                 );
               })}
+            </div>
 
-              {/* Logo card */}
-              <div className="col-span-2 bg-gradient-to-r from-orange-500/20 to-blue-500/20 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center gap-4">
-                <img
-                  src="/madhav-logo.png"
-                  alt="માધવ ઓનલાઇન સેન્ટર"
-                  className="w-14 h-14 rounded-xl object-cover border-2 border-white/30"
-                />
-                <div>
-                  <h3 className="text-white font-bold text-lg">
-                    માધવ ઓનલાઇન સેન્ટર
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    ડુંગર, પોલીસ સ્ટેશન નજીક
-                  </p>
+            {/* CTA Buttons */}
+            <div
+              className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mt-10 sm:mt-12 transition-all duration-700 delay-[500ms] ${
+                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              <a
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-green-500 text-white rounded-xl text-base font-bold hover:bg-green-600 transition-all duration-200 shadow-lg hover:shadow-green-500/30 hover:shadow-xl hover:scale-105 active:scale-95"
+              >
+                <MessageSquare className="w-5 h-5" />
+                WhatsApp પર સંપર્ક કરો
+              </a>
+              <a
+                href="#services"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl text-base font-bold hover:bg-white/20 transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                અમારી સેવાઓ જુઓ
+                <ArrowDown className="w-4 h-4" />
+              </a>
+            </div>
+
+            {/* Stats */}
+            <div
+              className={`flex flex-wrap justify-center gap-8 sm:gap-14 mt-12 sm:mt-16 transition-all duration-700 delay-[650ms] ${
+                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-orange-400">
+                  <Users className="w-5 h-5" />
+                  <span className="text-2xl sm:text-3xl font-bold">1000+</span>
                 </div>
+                <span className="text-sm text-gray-500 mt-1">
+                  સંતુષ્ટ ગ્રાહકો
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-blue-400">
+                  <Zap className="w-5 h-5" />
+                  <span className="text-2xl sm:text-3xl font-bold">50+</span>
+                </div>
+                <span className="text-sm text-gray-500 mt-1">
+                  સેવાઓ ઉપલબ્ધ
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-green-400">
+                  <Star className="w-5 h-5" />
+                  <span className="text-2xl sm:text-3xl font-bold">5+</span>
+                </div>
+                <span className="text-sm text-gray-500 mt-1">
+                  વર્ષનો અનુભવ
+                </span>
               </div>
             </div>
           </div>
@@ -634,7 +568,7 @@ export default function Home() {
         >
           <a
             href="#services"
-            className="flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-colors"
+            className="flex flex-col items-center gap-2 text-white/40 hover:text-white/70 transition-colors"
           >
             <span className="text-xs font-medium tracking-wider uppercase">
               નીચે સ્ક્રોલ કરો
@@ -737,7 +671,11 @@ export default function Home() {
       </section>
 
       {/* ========== FEATURES SECTION ========== */}
-      <section id="features" className="py-16 sm:py-24 bg-white" ref={featuresRef}>
+      <section
+        id="features"
+        className="py-16 sm:py-24 bg-white"
+        ref={featuresRef}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16 scroll-animate-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-semibold mb-4">
@@ -887,7 +825,11 @@ export default function Home() {
       </section>
 
       {/* ========== CONTACT SECTION ========== */}
-      <section id="contact" className="py-16 sm:py-24 bg-white" ref={contactRef}>
+      <section
+        id="contact"
+        className="py-16 sm:py-24 bg-white"
+        ref={contactRef}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16 scroll-animate-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-semibold mb-4">
