@@ -458,11 +458,14 @@ export default function Home() {
                 heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <h1 className="hero-float-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-none tracking-tight">
+              <h1 className="hero-float-title text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black leading-none tracking-tight">
                 <span className="gradient-text">માધવ</span>
                 <br />
                 <span className="gradient-text-blue">ઓનલાઇન સેન્ટર</span>
               </h1>
+              <p className="hero-float-title mt-4 text-lg sm:text-xl md:text-2xl font-semibold text-white/60 tracking-[0.3em] uppercase" style={{ animationDelay: "1s" }}>
+                Madhav Online Center
+              </p>
             </div>
 
             {/* Subtitle */}
