@@ -1,18 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Printer,
-  Copy,
   Camera,
   ScanLine,
   BookOpen,
-  CreditCard,
-  FileText,
   Ticket,
-  Layout,
   MessageSquare,
-  Usb,
   Zap,
   BadgeIndianRupee,
   MapPin,
@@ -30,16 +25,17 @@ import {
   Type,
   Wrench,
   Award,
-  Stamp,
   ChevronDown,
-  ChevronRight,
   CheckCircle2,
+  ArrowDown,
+  Monitor,
+  FileOutput,
+  Wifi,
 } from "lucide-react";
 
 const WHATSAPP_LINK =
   "https://chat.whatsapp.com/Ehd8xkgvqXcDmFzHyrHgfr?mode=ems_copy_c";
 
-// Categorized service data
 const serviceCategories = [
   {
     icon: Printer,
@@ -225,6 +221,13 @@ const specialFeatures = [
   },
 ];
 
+const heroQuickServices = [
+  { icon: Printer, label: "પ્રિન્ટ / ઝેરોક્સ" },
+  { icon: ScanLine, label: "સ્કેનિંગ / PDF" },
+  { icon: Globe, label: "ઓનલાઈન સેવા" },
+  { icon: Ticket, label: "ટિકિટ બુકિંગ" },
+];
+
 const navLinks = [
   { label: "હોમ", href: "#home" },
   { label: "સેવાઓ", href: "#services" },
@@ -233,40 +236,66 @@ const navLinks = [
   { label: "સંપર્ક", href: "#contact" },
 ];
 
-export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(
-    new Set()
-  );
-  const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
+// Hook for scroll-triggered animations on individual elements
+function useScrollAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-      setShowBackToTop(window.scrollY > 400);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    const el = ref.current;
+    if (!el) return;
 
-  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+            entry.target.classList.add("is-visible");
           }
         });
       },
-      { threshold: 0.05 }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
-    const sections = document.querySelectorAll("section[id]");
-    sections.forEach((section) => observer.observe(section));
+    const children = el.querySelectorAll(
+      ".scroll-animate, .scroll-animate-up, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale"
+    );
+    children.forEach((child) => observer.observe(child));
 
     return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+
+  // Parallax scroll position
+  const [scrollY, setScrollY] = useState(0);
+
+  const servicesRef = useScrollAnimation();
+  const featuresRef = useScrollAnimation();
+  const aboutRef = useScrollAnimation();
+  const contactRef = useScrollAnimation();
+
+  useEffect(() => {
+    // Trigger hero animations after mount
+    const timer = setTimeout(() => setHeroLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 50);
+      setShowBackToTop(y > 400);
+      setScrollY(y);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
@@ -277,42 +306,66 @@ export default function Home() {
     setExpandedCategory(expandedCategory === index ? null : index);
   };
 
+  // Parallax offset for hero image
+  const parallaxOffset = scrollY * 0.4;
+  // Opacity for hero overlay text as you scroll
+  const heroTextOpacity = Math.max(0, 1 - scrollY / 600);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? "bg-white/95 backdrop-blur-md shadow-lg"
-            : "bg-white/80 backdrop-blur-sm"
+            : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo */}
-            <a href="#home" className="flex items-center gap-2 sm:gap-3">
+          <div
+            className={`flex items-center justify-between transition-all duration-300 ${
+              scrolled ? "h-16 sm:h-20" : "h-16 sm:h-20"
+            }`}
+          >
+            <a
+              href="#home"
+              className={`flex items-center gap-2 sm:gap-3 transition-colors duration-300 ${
+                scrolled ? "text-orange-700" : "text-white"
+              }`}
+            >
               <img
                 src="/madhav-logo.png"
                 alt="માધવ ઓનલાઇન સેન્ટર"
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-white/50"
               />
               <div className="flex flex-col">
-                <span className="text-base sm:text-lg font-bold text-orange-700 leading-tight">
+                <span
+                  className={`text-base sm:text-lg font-bold leading-tight transition-colors duration-300 ${
+                    scrolled ? "text-orange-700" : "text-white"
+                  }`}
+                >
                   માધવ
                 </span>
-                <span className="text-xs sm:text-sm text-blue-700 font-medium leading-tight">
+                <span
+                  className={`text-xs sm:text-sm font-medium leading-tight transition-colors duration-300 ${
+                    scrolled ? "text-blue-700" : "text-blue-200"
+                  }`}
+                >
                   ઓનલાઇન સેન્ટર
                 </span>
               </div>
             </a>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    scrolled
+                      ? "text-gray-700 hover:text-orange-600 hover:bg-orange-50"
+                      : "text-white/90 hover:text-white hover:bg-white/10"
+                  }`}
                 >
                   {link.label}
                 </a>
@@ -328,22 +381,24 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-orange-50 transition-colors"
+              className={`md:hidden p-2 rounded-lg transition-colors ${
+                scrolled
+                  ? "hover:bg-orange-50 text-gray-700"
+                  : "hover:bg-white/10 text-white"
+              }`}
               aria-label="મેનુ ટૉગલ"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         <div
           className={`md:hidden transition-all duration-300 overflow-hidden ${
             mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
@@ -373,101 +428,230 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section
-        id="home"
-        className="relative pt-20 sm:pt-24 pb-16 sm:pb-24 overflow-hidden"
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-100 rounded-full opacity-50 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-100 rounded-full opacity-50 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-50 rounded-full opacity-30 blur-3xl" />
+      {/* ========== HERO SECTION ========== */}
+      <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Background Image with Parallax */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ transform: `translateY(${parallaxOffset}px)` }}
+        >
+          <img
+            src="/hero-banner.jpg"
+            alt="માધવ ઓનલાઇન સેન્ટર"
+            className="w-full h-[120%] object-cover"
+          />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center gap-6 sm:gap-8 py-8 sm:py-16">
-            <div className="relative">
-              <div className="absolute inset-0 bg-orange-200 rounded-full blur-xl opacity-40 scale-110" />
-              <img
-                src="/madhav-logo.png"
-                alt="માધવ ઓનલાઇન સેન્ટર"
-                className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-full object-cover shadow-2xl border-4 border-white"
-              />
-            </div>
+        {/* Dark Overlay with gradient */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-transparent to-black/30" />
 
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold">
-                <span className="text-orange-600">માધવ</span>{" "}
-                <span className="text-blue-600">ઓનલાઇન સેન્ટર</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-orange-500 font-semibold">
-                માં આપનું સ્વાગત છે
-              </p>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                તમારા તમામ પ્રિન્ટિંગ, ઝેરોક્સ અને ઓનલાઈન સેવાઓ માટે એક
-                વિશ્વસનીય સ્થળ
-              </p>
-            </div>
+        {/* Animated decorative elements */}
+        <div className="absolute inset-0 z-[2] overflow-hidden">
+          <div
+            className="absolute top-20 right-10 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-float"
+            style={{ animationDelay: "0s" }}
+          />
+          <div
+            className="absolute bottom-20 left-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-float"
+            style={{ animationDelay: "1.5s" }}
+          />
+          <div
+            className="absolute top-1/2 left-1/3 w-32 h-32 bg-orange-400/5 rounded-full blur-2xl animate-float"
+            style={{ animationDelay: "0.8s" }}
+          />
+        </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-              <a
-                href={WHATSAPP_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-green-500 text-white rounded-full text-base font-bold hover:bg-green-600 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+        {/* Hero Content */}
+        <div
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-32 sm:py-40"
+          style={{ opacity: heroTextOpacity }}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left: Text Content */}
+            <div className="space-y-6 sm:space-y-8">
+              {/* Badge */}
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-400/30 rounded-full text-orange-300 text-sm font-semibold backdrop-blur-sm transition-all duration-700 ${
+                  heroLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-4"
+                }`}
               >
-                <MessageSquare className="w-5 h-5" />
-                WhatsApp પર સંપર્ક કરો
-              </a>
-              <a
-                href="#services"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-orange-500 text-white rounded-full text-base font-bold hover:bg-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                <Wifi className="w-4 h-4" />
+                ડુંગરનું વિશ્વસનીય ઓનલાઈન સેન્ટર
+              </div>
+
+              {/* Main Title */}
+              <div
+                className={`transition-all duration-700 delay-150 ${
+                  heroLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
               >
-                અમારી સેવાઓ જુઓ
-              </a>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight">
+                  <span className="gradient-text">માધવ</span>
+                  <br />
+                  <span className="gradient-text-blue">ઓનલાઇન સેન્ટર</span>
+                </h1>
+              </div>
+
+              {/* Subtitle */}
+              <div
+                className={`transition-all duration-700 delay-300 ${
+                  heroLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+              >
+                <p className="text-lg sm:text-xl text-orange-300 font-semibold">
+                  માં આપનું સ્વાગત છે
+                </p>
+                <p className="text-base sm:text-lg text-gray-300 mt-2 leading-relaxed max-w-xl">
+                  તમારા તમામ પ્રિન્ટિંગ, ઝેરોક્સ અને ઓનલાઈન સેવાઓ માટે એક
+                  વિશ્વસનીય સ્થળ — ઝડપી, સસ્તી અને ગુણવત્તાવાળી સેવા
+                </p>
+              </div>
+
+              {/* CTA Buttons */}
+              <div
+                className={`flex flex-col sm:flex-row gap-3 sm:gap-4 transition-all duration-700 delay-[450ms] ${
+                  heroLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+              >
+                <a
+                  href={WHATSAPP_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-green-500 text-white rounded-xl text-base font-bold hover:bg-green-600 transition-all duration-200 shadow-lg hover:shadow-green-500/30 hover:shadow-xl hover:scale-105 active:scale-95"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  WhatsApp પર સંપર્ક કરો
+                </a>
+                <a
+                  href="#services"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl text-base font-bold hover:bg-white/20 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  અમારી સેવાઓ જુઓ
+                  <ArrowDown className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Stats */}
+              <div
+                className={`flex flex-wrap gap-6 sm:gap-10 pt-4 transition-all duration-700 delay-[600ms] ${
+                  heroLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-orange-400">
+                    <Users className="w-5 h-5" />
+                    <span className="text-2xl sm:text-3xl font-bold">1000+</span>
+                  </div>
+                  <span className="text-sm text-gray-400 mt-1">
+                    સંતુષ્ટ ગ્રાહકો
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-blue-400">
+                    <Zap className="w-5 h-5" />
+                    <span className="text-2xl sm:text-3xl font-bold">50+</span>
+                  </div>
+                  <span className="text-sm text-gray-400 mt-1">
+                    સેવાઓ ઉપલબ્ધ
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-green-400">
+                    <Star className="w-5 h-5" />
+                    <span className="text-2xl sm:text-3xl font-bold">5+</span>
+                  </div>
+                  <span className="text-sm text-gray-400 mt-1">
+                    વર્ષનો અનુભવ
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mt-6 sm:mt-8">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 text-orange-600">
-                  <Users className="w-5 h-5" />
-                  <span className="text-2xl sm:text-3xl font-bold">1000+</span>
+            {/* Right: Quick Service Cards */}
+            <div
+              className={`hidden lg:grid grid-cols-2 gap-4 transition-all duration-1000 delay-500 ${
+                heroLoaded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-12"
+              }`}
+            >
+              {heroQuickServices.map((svc, i) => {
+                const Icon = svc.icon;
+                return (
+                  <div
+                    key={i}
+                    className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 group hover:scale-105 hover:shadow-xl hover:shadow-orange-500/10"
+                    style={{ animationDelay: `${i * 150}ms` }}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-white font-bold text-base">
+                      {svc.label}
+                    </h3>
+                    <p className="text-gray-400 text-xs mt-1">
+                      ક્લિક કરો અને સેવા મેળવો
+                    </p>
+                  </div>
+                );
+              })}
+
+              {/* Logo card */}
+              <div className="col-span-2 bg-gradient-to-r from-orange-500/20 to-blue-500/20 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center gap-4">
+                <img
+                  src="/madhav-logo.png"
+                  alt="માધવ ઓનલાઇન સેન્ટર"
+                  className="w-14 h-14 rounded-xl object-cover border-2 border-white/30"
+                />
+                <div>
+                  <h3 className="text-white font-bold text-lg">
+                    માધવ ઓનલાઇન સેન્ટર
+                  </h3>
+                  <p className="text-gray-400 text-sm">
+                    ડુંગર, પોલીસ સ્ટેશન નજીક
+                  </p>
                 </div>
-                <span className="text-sm text-gray-500 mt-1">
-                  સંતુષ્ટ ગ્રાહકો
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 text-blue-600">
-                  <Zap className="w-5 h-5" />
-                  <span className="text-2xl sm:text-3xl font-bold">50+</span>
-                </div>
-                <span className="text-sm text-gray-500 mt-1">
-                  સેવાઓ ઉપલબ્ધ
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 text-green-600">
-                  <Star className="w-5 h-5" />
-                  <span className="text-2xl sm:text-3xl font-bold">5+</span>
-                </div>
-                <span className="text-sm text-gray-500 mt-1">
-                  વર્ષનો અનુભવ
-                </span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Scroll Down Indicator */}
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 scroll-bounce"
+          style={{ opacity: heroTextOpacity }}
+        >
+          <a
+            href="#services"
+            className="flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-colors"
+          >
+            <span className="text-xs font-medium tracking-wider uppercase">
+              નીચે સ્ક્રોલ કરો
+            </span>
+            <ArrowDown className="w-5 h-5" />
+          </a>
+        </div>
       </section>
 
-      {/* Services Section - Categorized */}
+      {/* ========== SERVICES SECTION ========== */}
       <section
         id="services"
         className="py-16 sm:py-24 bg-gradient-to-b from-white to-orange-50/50"
+        ref={servicesRef}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-12 sm:mb-16 scroll-animate-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full text-orange-700 text-sm font-semibold mb-4">
               <Printer className="w-4 h-4" />
               અમારી સેવાઓ
@@ -481,7 +665,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Service Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {serviceCategories.map((category, index) => {
               const Icon = category.icon;
@@ -491,14 +674,9 @@ export default function Home() {
               return (
                 <div
                   key={index}
-                  className={`service-card bg-white rounded-2xl shadow-sm border ${category.borderColor} overflow-hidden group ${
-                    visibleSections.has("services")
-                      ? "animate-fade-in-up"
-                      : "opacity-0"
-                  }`}
-                  style={{ animationDelay: `${index * 60}ms` }}
+                  className={`service-card scroll-animate-up bg-white rounded-2xl shadow-sm border ${category.borderColor} overflow-hidden group`}
+                  style={{ transitionDelay: `${index * 60}ms` }}
                 >
-                  {/* Category Header */}
                   <button
                     onClick={() => toggleCategory(index)}
                     className="w-full flex items-center gap-4 p-5 sm:p-6 text-left hover:bg-gray-50/50 transition-colors"
@@ -526,7 +704,6 @@ export default function Home() {
                     </div>
                   </button>
 
-                  {/* Items List - Always visible on desktop, expandable on mobile */}
                   <div
                     className={`transition-all duration-300 ${
                       isExpanded || !isLargeCategory
@@ -559,10 +736,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Special Features Section */}
-      <section id="features" className="py-16 sm:py-24 bg-white">
+      {/* ========== FEATURES SECTION ========== */}
+      <section id="features" className="py-16 sm:py-24 bg-white" ref={featuresRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-12 sm:mb-16 scroll-animate-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-semibold mb-4">
               <Star className="w-4 h-4" />
               અમારી ખાસિયત
@@ -581,12 +758,8 @@ export default function Home() {
               return (
                 <div
                   key={index}
-                  className={`relative overflow-hidden bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 sm:p-8 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-orange-200 ${
-                    visibleSections.has("features")
-                      ? "animate-fade-in-up"
-                      : "opacity-0"
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="scroll-animate-scale relative overflow-hidden bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 sm:p-8 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-orange-200"
+                  style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50/50 rounded-full -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
@@ -609,14 +782,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* ========== ABOUT SECTION ========== */}
       <section
         id="about"
         className="py-16 sm:py-24 bg-gradient-to-br from-orange-50 via-white to-blue-50"
+        ref={aboutRef}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
-            <div className="relative">
+            <div className="scroll-animate-left relative">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-200 to-blue-200 rounded-3xl blur-2xl opacity-30" />
               <div className="relative bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-orange-100">
                 <div className="flex items-center gap-4 mb-6">
@@ -678,7 +852,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
+            <div className="scroll-animate-right">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full text-orange-700 text-sm font-semibold mb-6">
                 <Star className="w-4 h-4" />
                 અમારા વિશે
@@ -712,10 +886,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-16 sm:py-24 bg-white">
+      {/* ========== CONTACT SECTION ========== */}
+      <section id="contact" className="py-16 sm:py-24 bg-white" ref={contactRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-12 sm:mb-16 scroll-animate-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-semibold mb-4">
               <Phone className="w-4 h-4" />
               સંપર્ક કરો
@@ -730,7 +904,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
-            <div className="space-y-5">
+            <div className="space-y-5 scroll-animate-left">
               <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-2xl p-6 border border-orange-100 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-6 h-6 text-white" />
@@ -782,7 +956,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100 h-80 sm:h-96 lg:h-full min-h-[320px]">
+            <div className="scroll-animate-right rounded-2xl overflow-hidden shadow-lg border border-gray-100 h-80 sm:h-96 lg:h-full min-h-[320px]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30000!2d69.95!3d22.15!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sDungar%2C%20Gujarat%20365555!5e0!3m2!1sen!2sin!4v1700000000000"
                 width="100%"
@@ -798,7 +972,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ========== FOOTER ========== */}
       <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
