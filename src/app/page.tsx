@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Printer,
   Copy,
@@ -10,7 +10,6 @@ import {
   CreditCard,
   FileText,
   Ticket,
-  FileCode,
   Layout,
   MessageSquare,
   Usb,
@@ -25,101 +24,211 @@ import {
   ShieldCheck,
   Users,
   Star,
+  Globe,
+  Car,
+  Wallet,
+  Type,
+  Wrench,
+  Award,
+  Stamp,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
 
 const WHATSAPP_LINK =
   "https://chat.whatsapp.com/Ehd8xkgvqXcDmFzHyrHgfr?mode=ems_copy_c";
 
-const services = [
-  {
-    icon: Copy,
-    title: "બ્લેક & વ્હાઈટ / કલર ઝેરોક્સ",
-    desc: "ઉચ્ચ ગુણવત્તાવાળા બ્લેક એન્ડ વ્હાઈટ અને કલર ઝેરોક્સ સેવા",
-    color: "from-orange-500 to-orange-600",
-  },
+// Categorized service data
+const serviceCategories = [
   {
     icon: Printer,
-    title: "પ્રિન્ટઆઉટ (PDF, Word, Photo)",
-    desc: "PDF, Word અને ફોટો ફાઈલોની ઝડપી પ્રિન્ટિંગ",
-    color: "from-blue-500 to-blue-600",
-  },
-  {
-    icon: Camera,
-    title: "ફોટો પ્રિન્ટ (પાસપોર્ટ સાઈઝ)",
-    desc: "પાસપોર્ટ સાઈઝના ફોટો પ્રિન્ટ સેવા",
-    color: "from-orange-400 to-orange-500",
+    title: "પ્રિન્ટિંગ અને ઝેરોક્સ",
+    emoji: "🖨️",
+    color: "from-orange-500 to-orange-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
+    items: [
+      "બ્લેક & વ્હાઈટ ઝેરોક્સ",
+      "કલર ઝેરોક્સ",
+      "A4 / A3 પ્રિન્ટ",
+      "કલર પ્રિન્ટ",
+      "ફોટો પ્રિન્ટ (પાસપોર્ટ સાઈઝ, વિઝા)",
+      "ID કાર્ડ પ્રિન્ટ",
+    ],
   },
   {
     icon: ScanLine,
-    title: "સ્કેનિંગ અને PDF સેવા",
-    desc: "દસ્તાવેજોનું સ્કેનિંગ અને PDF માં રૂપાંતર",
-    color: "from-blue-400 to-blue-500",
+    title: "સ્કેનિંગ અને ડોક્યુમેન્ટ સેવા",
+    emoji: "📄",
+    color: "from-blue-500 to-blue-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    items: [
+      "ડોક્યુમેન્ટ સ્કેનિંગ",
+      "PDF બનાવવું / મર્જ / સ્પ્લિટ",
+      "ફોટો સ્કેન",
+      "ડોક્યુમેન્ટ એડિટિંગ",
+    ],
   },
   {
     icon: BookOpen,
     title: "લેમિનેશન અને બાઈન્ડિંગ",
-    desc: "દસ્તાવેજોની લેમિનેશન અને બાઈન્ડિંગ સેવા",
+    emoji: "📚",
     color: "from-orange-600 to-red-500",
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
+    items: [
+      "લેમિનેશન",
+      "સ્પાયરલ બાઈન્ડિંગ",
+      "હાર્ડ / સોફ્ટ બાઈન્ડિંગ",
+      "કટીંગ / સ્ટેપલિંગ",
+    ],
   },
   {
-    icon: CreditCard,
-    title: "આધાર / પાન કાર્ડ સેવા",
-    desc: "આધાર કાર્ડ અને પાન કાર્ડ સંબંધિત સેવાઓ",
+    icon: Globe,
+    title: "ઓનલાઈન અને સરકારની સેવાઓ",
+    emoji: "🌐",
     color: "from-blue-600 to-indigo-500",
+    bgColor: "bg-indigo-50",
+    borderColor: "border-indigo-200",
+    items: [
+      "આધાર કાર્ડ પ્રિન્ટ / અપડેટ",
+      "પાન કાર્ડ અરજી",
+      "મતદાર ID (Voter ID)",
+      "પાસપોર્ટ એપ્લિકેશન",
+      "રેશન કાર્ડ સેવા",
+      "જન્મ / મૃત્યુ પ્રમાણપત્ર",
+      "સ્કોલરશિપ ફોર્મ",
+      "સરકારી યોજના ફોર્મ",
+      "નોકરી / એક્ઝામ ફોર્મ",
+      "કોલેજ / સ્કૂલ એડમિશન ફોર્મ",
+      "ઓનલાઇન રજીસ્ટ્રેશન",
+    ],
   },
   {
-    icon: FileText,
-    title: "ઓનલાઈન ફોર્મ ભરવું",
-    desc: "તમામ પ્રકારના ઓનલાઈન ફોર્મ ભરવાની સેવા",
-    color: "from-orange-500 to-amber-500",
+    icon: Car,
+    title: "RTO (વાહન સંબંધિત સેવાઓ)",
+    emoji: "🚗",
+    color: "from-amber-500 to-orange-500",
+    bgColor: "bg-amber-50",
+    borderColor: "border-amber-200",
+    items: [
+      "ડ્રાઇવિંગ લાઈસન્સ (Learning / Permanent)",
+      "વાહન રજીસ્ટ્રેશન",
+      "RC બુક પ્રિન્ટ",
+      "વાહન ટ્રાન્સફર (Ownership Transfer)",
+      "વાહન ઇન્શ્યોરન્સ રિન્યુ",
+      "PUC (Pollution Certificate) માહિતી",
+      "વાહન ફાઇન (E-Challan) ચેક અને પેમેન્ટ",
+    ],
   },
   {
     icon: Ticket,
-    title: "ઇ-ટિકિટ (રેલવે / બસ / ફ્લાઈટ)",
-    desc: "રેલવે, બસ અને ફ્લાઈટની ઇ-ટિકિટ બુકિંગ",
+    title: "ટિકિટ બુકિંગ",
+    emoji: "🎫",
     color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-cyan-50",
+    borderColor: "border-cyan-200",
+    items: ["રેલવે ટિકિટ", "બસ ટિકિટ", "ફ્લાઈટ ટિકિટ"],
   },
   {
-    icon: FileCode,
-    title: "રિઝ્યૂમે અને પ્રોજેક્ટ પ્રિન્ટ",
-    desc: "રિઝ્યૂમે અને પ્રોજેક્ટ રિપોર્ટની પ્રિન્ટિંગ",
-    color: "from-orange-400 to-red-400",
+    icon: Wallet,
+    title: "બિલ પેમેન્ટ અને રિચાર્જ",
+    emoji: "💸",
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    items: [
+      "લાઈટ બિલ પેમેન્ટ",
+      "મોબાઈલ રિચાર્જ",
+      "DTH રિચાર્જ",
+      "FASTag રિચાર્જ",
+      "ગેસ બિલ પેમેન્ટ",
+      "મની ટ્રાન્સફર",
+    ],
   },
   {
-    icon: Layout,
-    title: "વિઝિટિંગ કાર્ડ / પોસ્ટર પ્રિન્ટ",
-    desc: "વિઝિટિંગ કાર્ડ અને પોસ્ટર ડિઝાઈન અને પ્રિન્ટ",
-    color: "from-blue-400 to-violet-500",
+    icon: Type,
+    title: "ટાઈપિંગ અને ઓફિસ વર્ક",
+    emoji: "🧾",
+    color: "from-purple-500 to-violet-500",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
+    items: [
+      "રિઝ્યૂમે બનાવવું",
+      "પ્રોજેક્ટ ટાઈપિંગ",
+      "લેટર / એપ્લિકેશન લખવું",
+      "એફિડેવિટ ટાઈપિંગ",
+    ],
+  },
+  {
+    icon: Camera,
+    title: "ફોટો અને ID સેવાઓ",
+    emoji: "🪪",
+    color: "from-pink-500 to-rose-500",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
+    items: [
+      "પાસપોર્ટ સાઈઝ ફોટો",
+      "ઇન્સ્ટન્ટ ફોટો પ્રિન્ટ",
+      "ID કાર્ડ ડિઝાઇન",
+    ],
+  },
+  {
+    icon: Wrench,
+    title: "અન્ય સામાન્ય સેવાઓ",
+    emoji: "🛠️",
+    color: "from-teal-500 to-cyan-500",
+    bgColor: "bg-teal-50",
+    borderColor: "border-teal-200",
+    items: [
+      "વોટ્સએપ / ઇમેઇલમાંથી પ્રિન્ટ",
+      "પેન ડ્રાઈવ સપોર્ટ",
+      "રબર સ્ટેમ્પ બનાવવું",
+      "વિઝિટિંગ કાર્ડ પ્રિન્ટ",
+      "પેમ્ફલેટ / પોસ્ટર ડિઝાઇન",
+      "ઓનલાઇન રિઝલ્ટ ચેક",
+      "હોલ ટિકિટ પ્રિન્ટ",
+    ],
   },
 ];
 
-const facilities = [
-  {
-    icon: MessageSquare,
-    title: "વોટ્સએપ / ઇમેઇલમાંથી પ્રિન્ટ",
-    desc: "સીધા વોટ્સએપ અથવા ઇમેઇલ પરથી ફાઈલ મોકલીને પ્રિન્ટ કરાવો",
-  },
-  {
-    icon: Usb,
-    title: "પેન ડ્રાઈવ સપોર્ટ",
-    desc: "તમારી પેન ડ્રાઈવમાંથી સીધું પ્રિન્ટ કરાવો",
-  },
+const specialFeatures = [
   {
     icon: Zap,
-    title: "ઝડપી સેવા",
-    desc: "ઓછા સમયમાં ઝડપી અને ચોક્કસ સેવા",
+    title: "ઝડપી અને વિશ્વસનીય સેવા",
+    desc: "અમે ઓછા સમયમાં ચોક્કસ અને વિશ્વસનીય સેવા પ્રદાન કરીએ છીએ",
+    color: "text-orange-600",
+    bg: "bg-orange-100",
   },
   {
     icon: BadgeIndianRupee,
     title: "ઓછા દર",
-    desc: "બજાર કરતાં ઓછા દરે ઉત્તમ સેવા",
+    desc: "બજાર કરતાં ઓછા દરે ઉત્તમ ગુણવત્તાની સેવા",
+    color: "text-green-600",
+    bg: "bg-green-100",
+  },
+  {
+    icon: Award,
+    title: "ઉત્તમ ગુણવત્તા",
+    desc: "દરેક સેવામાં શ્રેષ્ઠ ગુણવત્તાનું ધ્યાન રાખીએ છીએ",
+    color: "text-blue-600",
+    bg: "bg-blue-100",
+  },
+  {
+    icon: ShieldCheck,
+    title: "એક જ જગ્યાએ તમામ સેવા",
+    desc: "તમારા તમામ જરૂરિયાતો એક જ છત નીચે ઉપલબ્ધ",
+    color: "text-purple-600",
+    bg: "bg-purple-100",
   },
 ];
 
 const navLinks = [
   { label: "હોમ", href: "#home" },
   { label: "સેવાઓ", href: "#services" },
-  { label: "સુવિધાઓ", href: "#facilities" },
+  { label: "ખાસિયત", href: "#features" },
   { label: "અમારા વિશે", href: "#about" },
   { label: "સંપર્ક", href: "#contact" },
 ];
@@ -131,6 +240,7 @@ export default function Home() {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(
     new Set()
   );
+  const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,7 +260,7 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.05 }
     );
 
     const sections = document.querySelectorAll("section[id]");
@@ -161,6 +271,10 @@ export default function Home() {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const toggleCategory = (index: number) => {
+    setExpandedCategory(expandedCategory === index ? null : index);
   };
 
   return (
@@ -264,7 +378,6 @@ export default function Home() {
         id="home"
         className="relative pt-20 sm:pt-24 pb-16 sm:pb-24 overflow-hidden"
       >
-        {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-100 rounded-full opacity-50 blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-100 rounded-full opacity-50 blur-3xl" />
@@ -273,7 +386,6 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center gap-6 sm:gap-8 py-8 sm:py-16">
-            {/* Logo */}
             <div className="relative">
               <div className="absolute inset-0 bg-orange-200 rounded-full blur-xl opacity-40 scale-110" />
               <img
@@ -283,7 +395,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Title */}
             <div className="space-y-3 sm:space-y-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold">
                 <span className="text-orange-600">માધવ</span>{" "}
@@ -298,7 +409,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
               <a
                 href={WHATSAPP_LINK}
@@ -317,7 +427,6 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Stats */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mt-6 sm:mt-8">
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1 text-orange-600">
@@ -331,7 +440,7 @@ export default function Home() {
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1 text-blue-600">
                   <Zap className="w-5 h-5" />
-                  <span className="text-2xl sm:text-3xl font-bold">10+</span>
+                  <span className="text-2xl sm:text-3xl font-bold">50+</span>
                 </div>
                 <span className="text-sm text-gray-500 mt-1">
                   સેવાઓ ઉપલબ્ધ
@@ -351,7 +460,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section - Categorized */}
       <section
         id="services"
         className="py-16 sm:py-24 bg-gradient-to-b from-white to-orange-50/50"
@@ -372,31 +481,77 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 sm:gap-6">
-            {services.map((service, index) => {
-              const Icon = service.icon;
+          {/* Service Categories Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            {serviceCategories.map((category, index) => {
+              const Icon = category.icon;
+              const isExpanded = expandedCategory === index;
+              const isLargeCategory = category.items.length > 5;
+
               return (
                 <div
                   key={index}
-                  className={`service-card bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-orange-200 cursor-default group ${
+                  className={`service-card bg-white rounded-2xl shadow-sm border ${category.borderColor} overflow-hidden group ${
                     visibleSections.has("services")
                       ? "animate-fade-in-up"
                       : "opacity-0"
                   }`}
-                  style={{ animationDelay: `${index * 80}ms` }}
+                  style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  {/* Category Header */}
+                  <button
+                    onClick={() => toggleCategory(index)}
+                    className="w-full flex items-center gap-4 p-5 sm:p-6 text-left hover:bg-gray-50/50 transition-colors"
                   >
-                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                    <div
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-snug">
+                        <span className="mr-1.5">{category.emoji}</span>
+                        {category.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
+                        {category.items.length} સેવાઓ
+                      </p>
+                    </div>
+                    <div
+                      className={`flex-shrink-0 transition-transform duration-300 ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    >
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    </div>
+                  </button>
+
+                  {/* Items List - Always visible on desktop, expandable on mobile */}
+                  <div
+                    className={`transition-all duration-300 ${
+                      isExpanded || !isLargeCategory
+                        ? "max-h-[600px] opacity-100"
+                        : "max-h-0 opacity-0 md:max-h-[600px] md:opacity-100"
+                    }`}
+                  >
+                    <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                      <div className="border-t border-gray-100 pt-4">
+                        <div className="grid grid-cols-1 gap-2">
+                          {category.items.map((item, itemIndex) => (
+                            <div
+                              key={itemIndex}
+                              className="flex items-start gap-2.5 group/item"
+                            >
+                              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                              <span className="text-sm text-gray-700 group-hover/item:text-gray-900 transition-colors">
+                                {item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2 leading-snug">
-                    {service.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    {service.desc}
-                  </p>
                 </div>
               );
             })}
@@ -404,47 +559,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Facilities Section */}
-      <section id="facilities" className="py-16 sm:py-24 bg-white">
+      {/* Special Features Section */}
+      <section id="features" className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-semibold mb-4">
-              <ShieldCheck className="w-4 h-4" />
-              અન્ય સુવિધાઓ
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-semibold mb-4">
+              <Star className="w-4 h-4" />
+              અમારી ખાસિયત
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              અમારી વિશેષ સુવિધાઓ
+              શા માટે અમને પસંદ કરો?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
-              અમે તમને શ્રેષ્ઠ સેવા આપવા માટે સતત પ્રયત્નશીલ છીએ
+              અમારી સેવાની વિશેષતાઓ જે અમને અલગ બનાવે છે
             </p>
           </div>
 
-          {/* Facilities Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            {facilities.map((facility, index) => {
-              const Icon = facility.icon;
+            {specialFeatures.map((feature, index) => {
+              const Icon = feature.icon;
               return (
                 <div
                   key={index}
-                  className={`relative overflow-hidden bg-gradient-to-br from-blue-50 to-orange-50 rounded-2xl p-6 sm:p-8 border border-blue-100/50 group hover:shadow-lg transition-all duration-300 ${
-                    visibleSections.has("facilities")
+                  className={`relative overflow-hidden bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 sm:p-8 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-orange-200 ${
+                    visibleSections.has("features")
                       ? "animate-fade-in-up"
                       : "opacity-0"
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-100/40 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50/50 rounded-full -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="w-7 h-7 text-blue-600" />
+                    <div
+                      className={`w-14 h-14 rounded-2xl ${feature.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <Icon className={`w-7 h-7 ${feature.color}`} />
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">
-                      {facility.title}
+                      {feature.title}
                     </h3>
                     <p className="text-sm text-gray-500 leading-relaxed">
-                      {facility.desc}
+                      {feature.desc}
                     </p>
                   </div>
                 </div>
@@ -461,7 +616,6 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
-            {/* Image / Visual */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-200 to-blue-200 rounded-3xl blur-2xl opacity-30" />
               <div className="relative bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-orange-100">
@@ -524,7 +678,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Text Content */}
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full text-orange-700 text-sm font-semibold mb-6">
                 <Star className="w-4 h-4" />
@@ -562,7 +715,6 @@ export default function Home() {
       {/* Contact Section */}
       <section id="contact" className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-semibold mb-4">
               <Phone className="w-4 h-4" />
@@ -578,9 +730,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
-            {/* Contact Info Cards */}
             <div className="space-y-5">
-              {/* Address Card */}
               <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-2xl p-6 border border-orange-100 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-6 h-6 text-white" />
@@ -595,7 +745,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* WhatsApp Card */}
               <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-6 border border-green-100 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center flex-shrink-0">
                   <MessageSquare className="w-6 h-6 text-white" />
@@ -617,7 +766,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Working Hours Card */}
               <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-100 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0">
                   <Clock className="w-6 h-6 text-white" />
@@ -634,7 +782,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Google Map */}
             <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100 h-80 sm:h-96 lg:h-full min-h-[320px]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30000!2d69.95!3d22.15!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sDungar%2C%20Gujarat%20365555!5e0!3m2!1sen!2sin!4v1700000000000"
@@ -655,7 +802,6 @@ export default function Home() {
       <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
-            {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <img
@@ -676,7 +822,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Quick Links */}
             <div>
               <h4 className="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-4">
                 ઝડપી લિંક્સ
@@ -694,7 +839,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Contact Info */}
             <div>
               <h4 className="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-4">
                 સંપર્ક માહિતી
@@ -719,7 +863,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom Bar */}
           <div className="mt-10 pt-6 border-t border-gray-700/50 text-center">
             <p className="text-xs sm:text-sm text-gray-500">
               &copy; 2026 Madhav Online Center - All Rights Reserved
